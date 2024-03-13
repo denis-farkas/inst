@@ -1,147 +1,212 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { userService } from "../../utils/userService";
 //import UploadImage from "./components/Upload_image";
 import "./userProfile.scss";
 
 const UserProfile = () => {
-    const [user, setUser] = useState(null);
-    const [isEditing, setEditing] = useState(false);
-    let actualUser = JSON.parse(localStorage.getItem("user"));
-    const id = actualUser.userId;
-    useEffect(() => {
-        let data;
+  const [user, setUser] = useState(null);
+  let actualUser = JSON.parse(localStorage.getItem("user"));
+  const id = actualUser.userId;
+  const navigate = useNavigate();
+  useEffect(() => {
+    let data;
 
-        let config = {
-            method: "get",
-            maxBodyLength: Infinity,
-            url: `http://localhost:3000/users/readOneUser?id=${id}`,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            data: data,
-        };
-
-        axios
-            .request(config)
-            .then((response) => {
-                console.log(response);
-                setUser(response.data.user);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }, []);
-
-    // Handle input changes
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setUser((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-        console.log(user);
+    let config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: `http://localhost:3000/users/readOneUser?id=${id}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        //console.log('Updated User Data:', user.data);
-        setEditing(false);
-    };
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(response);
+        setUser(response.data.user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
-    return (
-        <div className="main">
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    console.log(user);
+  };
 
-            <h2>Mes informations personnelles</h2>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (id !== undefined || user.role === "admin") {
+      const token = actualUser.token;
+      user.userId = id;
+      let data = { user };
+      data = JSON.stringify(data);
+      console.log(data);
+      let config = {
+        method: "put",
+        maxBodyLength: Infinity,
+        url: "http://localhost:3000/users/updateUser",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        data: data,
+      };
 
-            {/*<Upload_image/>*/}
+      axios
+        .request(config)
+        .then((response) => {
+          console.log(response);
+          if (response.status === 200) {
+            console.log("Response succeeded!");
+            toast.success("Modification validée");
+            userService.update();
+            setTimeout(() => {
+              navigate("/signIn");
+            }, 3000);
+          }
+        })
+        .catch((error) => {
+          const errorMessage =
+            error.response?.data?.message || "An error occurred";
+          toast.error(errorMessage);
+        });
+    } else {
+      const errorMessage =
+        "Vous ne disposez pas des droits pour cette modification";
+      toast.error(errorMessage);
+    }
+  };
 
-            <form onSubmit={handleSubmit}>
-                <div className="inputGroup">
-                    <label className="inputLabel" id="address" htmlFor="address">Adresse</label>
-                    <input
-                        aria-label="Entrez votre adresse"
-                        className="inputField"
-                        type="text"
-                        name="address"
-                        value={user && user.address}
-                        onChange={handleInputChange}
+  return (
+    <div className="main">
+      <h2>Mes informations personnelles</h2>
 
-                    />
-                </div>
-                <div className="inputGroup">
-                    <label className="inputLabel" id="postcode" htmlFor="postCode">CP</label>
-                    <input
-                        aria-label="Entrez votre code postal"
-                        className="inputField"
-                        type="text"
-                        name="postcode"
-                        value={user && user.postCode}
-                        onChange={handleInputChange}
+      {/*<Upload_image/>*/}
 
-                    />
-                </div>
-                <div className="inputGroup">
-                    <label className="inputLabel" id="city" htmlFor="city">Ville</label>
-                    <input
-                        aria-label="Entrez votre ville"
-                        className="inputField"
-                        type="text"
-                        name="city"
-                        value={user && user.city}
-                        onChange={handleInputChange}
-
-                    />
-                </div>
-                <div className="inputGroup">
-                    <label className="inputLabel" id="phoneNumber" htmlFor="phoneNumber">Numéro de téléphone</label>
-                    <input
-                        aria-label="Entrez votre numéro de téléphone"
-                        className="inputField"
-                        type="tel"
-                        name="phoneNumber"
-                        value={user && user.phoneNumber}
-                        onChange={handleInputChange}
-
-                    />
-                </div>
-                <div className="inputGroup">
-                    <label className="inputLabel" id="danceLevel" htmlFor="danceLevel">Niveau de danse</label>
-                    <select
-                        aria-label="Entrez votre niveau de danse"
-                        className="inputField"
-                        type="text"
-                        name="danceLevel"
-                        onChange={handleInputChange}
-                        required>
-                        <option value={user && user.danceLevel} >{user && user.danceLevel}</option>
-                        <option value="débutant" >Débutant</option>
-                        <option value="intermédiaire" >Intermédiaire</option>
-                        <option value="avancé" >Avancé</option>
-                    </select>
-                </div>
-                <div className="inputGroup">
-                    <label className="inputLabel" id="email" htmlFor="email">Email</label>
-                    <input
-                        aria-label="Entrez votre adresse email"
-                        className="inputField"
-                        type="email"
-                        name="email"
-                        value={user && user.email}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-
-                {isEditing ? (
-                    <button type="submit">Save Changes</button>
-                ) : (
-                    <button type="button" onClick={() => setEditing(true)}>
-                        Edit Profile
-                    </button>
-                )}
-            </form>
-        </div >
-    );
+      <form onSubmit={handleSubmit}>
+        <div className="inputGroup">
+          <label className="inputLabel" htmlFor="address">
+            Adresse
+          </label>
+          <input
+            id="address"
+            aria-label="Entrez votre adresse"
+            className="inputField"
+            type="text"
+            name="address"
+            value={user && user.address}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="inputGroup">
+          <label className="inputLabel" htmlFor="postCode">
+            CP
+          </label>
+          <input
+            id="postcode"
+            aria-label="Entrez votre code postal"
+            className="inputField"
+            type="text"
+            name="postcode"
+            value={user && user.postCode}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="inputGroup">
+          <label className="inputLabel" htmlFor="city">
+            Ville
+          </label>
+          <input
+            id="city"
+            aria-label="Entrez votre ville"
+            className="inputField"
+            type="text"
+            name="city"
+            value={user && user.city}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="inputGroup">
+          <label className="inputLabel" htmlFor="phoneNumber">
+            Numéro de téléphone
+          </label>
+          <input
+            id="phoneNumber"
+            aria-label="Entrez votre numéro de téléphone"
+            className="inputField"
+            type="tel"
+            name="phoneNumber"
+            value={user && user.phoneNumber}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="inputGroup">
+          <label className="inputLabel" htmlFor="danceLevel">
+            Niveau de danse
+          </label>
+          <select
+            id="danceLevel"
+            aria-label="Entrez votre niveau de danse"
+            className="inputField"
+            type="text"
+            name="danceLevel"
+            onChange={handleInputChange}
+            required
+          >
+            <option value={user && user.danceLevel}>
+              {user && user.danceLevel}
+            </option>
+            <option value="débutant">Débutant</option>
+            <option value="intermédiaire">Intermédiaire</option>
+            <option value="avancé">Avancé</option>
+          </select>
+        </div>
+        <div className="inputGroup">
+          <label className="inputLabel" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            aria-label="Entrez votre adresse email"
+            className="inputField"
+            type="email"
+            name="email"
+            value={user && user.email}
+            onChange={handleInputChange}
+            required
+          />
+          <div className="inputGroup">
+            <label className="inputLabel" htmlFor="password">
+              Mot de passe
+            </label>
+            <input
+              id="password"
+              aria-label="Entrez votre mot de passe"
+              className="inputField"
+              type="password"
+              name="password"
+              placeholder="Entrez votre mot de passe ou un nouveau"
+              onChange={handleInputChange}
+              required="required"
+            />
+          </div>
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  );
 };
 
 export default UserProfile;

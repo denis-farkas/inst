@@ -23,10 +23,10 @@ const signUp = async (
   email,
   hashedPassword,
   role,
-  upLoadedImage
+  image
 ) => {
   const sql = `
-   INSERT INTO users (first_name, last_name, birthday, address, postcode, city, phone_number, dance_level, email, password, role, upLoadedImage) 
+   INSERT INTO users (first_name, last_name, birthday, address, postcode, city, phone_number, dance_level, email, password, role, image) 
    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,? )`;
 
   let error = null;
@@ -46,7 +46,7 @@ const signUp = async (
       email,
       hashedPassword,
       role,
-      upLoadedImage,
+      image,
     ]);
   } catch (e) {
     // Capture de l'erreur en cas d'échec de l'exécution de la requête
@@ -57,6 +57,45 @@ const signUp = async (
   }
 };
 
+const updateUser = async (
+  address,
+  postCode,
+  city,
+  phoneNumber,
+  danceLevel,
+  email,
+  hashedPassword,
+  image,
+  userId
+) => {
+  const sql = `
+   UPDATE users SET address=?, postcode=?, city=?, phone_number=?, dance_level=?, email=?, password=?, image=? 
+   WHERE user_id=?`;
+
+  let error = null;
+  let result = null;
+
+  try {
+    // Exécution de la requête SQL pour créer un nouvel utilisateur
+    result = await query(sql, [
+      address,
+      postCode,
+      city,
+      phoneNumber,
+      danceLevel,
+      email,
+      hashedPassword,
+      image,
+      userId,
+    ]);
+  } catch (e) {
+    // Capture de l'erreur en cas d'échec de l'exécution de la requête
+    error = e.message;
+  } finally {
+    // Retour d'un objet contenant l'erreur (le cas échéant) et le résultat de la requête
+    return { error, result };
+  }
+};
 // Fonction asynchrone pour lire les informations de certains champs des utilisateurs depuis la base de données
 const read = async () => {
   // Requête SQL pour sélectionner les champs spécifiés de la table "users"
@@ -85,7 +124,7 @@ const read = async () => {
 // Requête pour sélectionner les informations personnelles du compte de l'utilisateur à afficher lorsqu'il est connecté
 const readOneUser = async (id) => {
   const sql = `
-        SELECT first_name, last_name, birthday, address, postcode, city, phone_number, dance_level, email, upLoadedImage
+        SELECT first_name, last_name, birthday, address, postcode, city, phone_number, dance_level, email, image
         FROM users
         WHERE user_id = ?
     `;
@@ -108,7 +147,7 @@ const readOneUser = async (id) => {
 // Requête pour récupérer les informations d'authentification d'un utilisateur lors de la connexion
 const signIn = async (email) => {
   const sql = `
-  SELECT user_id, email, password, role, upLoadedImage
+  SELECT user_id, email, password, role, image
   FROM users
   WHERE email = ?`;
 
@@ -186,4 +225,5 @@ export const UserDB = {
   signUpWorkshop,
   isRegistered,
   registeredWorkshop,
+  updateUser,
 };

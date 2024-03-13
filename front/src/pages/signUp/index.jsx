@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "./signUp.scss";
-import UploadImage from "../../components/UploadImage";
 
 const SignUp = () => {
   //const { firstName, lastName, birthday, address, postCode, city, phoneNumber, danceLevel, email, password, role } = req.body;
@@ -18,7 +17,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const role = "user";
-  const [upLoadedImage, setUpLoadedImage] = useState("");
+  const [image, setImage] = useState("profil.png");
 
   let navigate = useNavigate();
 
@@ -36,7 +35,7 @@ const SignUp = () => {
       email,
       password,
       role,
-      upLoadedImage,
+      image,
     };
     data = JSON.stringify(data);
     console.log(data);
@@ -66,10 +65,9 @@ const SignUp = () => {
           setDanceLevel("");
           setEmail("");
           setPassword("");
-          setUpLoadedImage("");
           toast.success("Inscription validée");
           setTimeout(() => {
-            navigate("/");
+            navigate("/signIn");
           }, 3000);
         }
       })
@@ -264,7 +262,7 @@ const SignUp = () => {
             required="required"
           />
         </div>
-        <UploadImage setUpLoadedImage={setUpLoadedImage} />
+
         <div className="inputGroup">
           <input
             className="submitButton"

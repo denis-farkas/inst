@@ -20,11 +20,16 @@ function setNavigate(navigate) {
   navigateFunction = navigate;
 }
 
-// Fonction de déconnexion de l'utilisateur 
+// Fonction de déconnexion de l'utilisateur
 function logout() {
-  localStorage.removeItem("user");// retrait du user du localStorage
-  userSubject.next(null);// le sujet observable redevient null
-  navigateFunction("/");// redirection vers la page de connexion
+  localStorage.removeItem("user"); // retrait du user du localStorage
+  userSubject.next(null); // le sujet observable redevient null
+  navigateFunction("/"); // redirection vers la page de connexion
+}
+
+function update() {
+  localStorage.removeItem("user"); // retrait du user du localStorage
+  userSubject.next(null); // le sujet observable redevient null
 }
 
 // Export d'un objet contenant les méthodes et propriétés du service utilisateur
@@ -38,4 +43,5 @@ export const userService = {
   login,
   logout,
   setNavigate,
+  update,
 };

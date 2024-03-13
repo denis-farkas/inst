@@ -22,6 +22,7 @@ import { ToastContainer } from "react-toastify";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import { WorkshopsProvider } from "./context/WorkshopsProvider";
+import EditWorkshop from "./pages/editWorkshop";
 
 function App() {
   return (
@@ -48,7 +49,10 @@ function App() {
             />
             <Route path="/backOffice" element={<BackOffice />} />
             <Route path="/backUser" element={<BackUser />} />
-            <Route path={`/editUser/:user_id`} element={<EditUser />} />
+            <Route
+              path={`/editWorkshop/:dancer_workshop_id`}
+              element={<EditWorkshop />}
+            />
             <Route path="/backCategory" element={<BackCategory />} />
             <Route path="/backWorkshop" element={<BackWorkshop />} />
             <Route path="/backMessage" element={<BackMessage />} />

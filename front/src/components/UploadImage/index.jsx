@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./uploadImage.scss";
 import axios from "axios";
 
-const UploadImage = ({ setUpLoadedImage }) => {
+const UploadImage = ({ setUpImage }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [publicId, setPublicId] = useState("");
 
@@ -16,7 +16,7 @@ const UploadImage = ({ setUpLoadedImage }) => {
       .then((response) => {
         console.log(response);
 
-        setUpLoadedImage(response.data.secure_url);
+        setUpImage(response.data.secure_url);
         setPublicId(response.data.public_id);
       });
   };
@@ -34,7 +34,7 @@ const UploadImage = ({ setUpLoadedImage }) => {
       )
       .then((response) => {
         console.log("Image deleted successfully");
-        setUpLoadedImage("");
+        setUpImage("");
         // Handle any further actions after successful deletion
       })
       .catch((error) => {

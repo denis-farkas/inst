@@ -4,7 +4,7 @@ import { FaBars } from "react-icons/fa";
 import { userService } from "../../utils/userService";
 import { useNavigate } from "react-router-dom";
 import "./header.scss";
-import { Image } from "cloudinary-react";
+//import { Image } from "cloudinary-react";
 
 const Header = () => {
   // Utilisation de l'état local pour gérer l'ouverture/fermeture du menu
@@ -79,12 +79,6 @@ const Header = () => {
           {/* Affichage conditionnel du bouton de déconnexion ou des liens de connexion/inscription */}
           {user ? (
             <>
-              <Image
-                style={{ width: 50 }}
-                cloudName="dfmbhkfao"
-                publicId={user.upLoadedImage}
-              />
-
               <NavLink
                 to={"/registeredWorkshop"}
                 activeClassName="active"

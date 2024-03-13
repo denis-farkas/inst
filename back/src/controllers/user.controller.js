@@ -19,7 +19,7 @@ const signUp = async (req, res) => {
     email,
     password,
     role,
-    upLoadedImage,
+    image,
   } = req.body;
 
   // Vérification de l'existence de l'email dans la base de données
@@ -64,7 +64,7 @@ const signUp = async (req, res) => {
       email,
       hashedPassword,
       role,
-      upLoadedImage
+      image
     );
     const responseError = response.error;
     console.log(response);
@@ -75,6 +75,62 @@ const signUp = async (req, res) => {
     const userId = response.result.insertId;
     return res.status(200).json({ message: "Utilisateur créé", user: userId });
   }
+};
+// Fonction pour modifier un utilisateur
+
+const updateUser = async (req, res) => {
+  // Extraction des données de la requête
+  const { user } = req.body;
+
+  const address = user.address;
+  const postCode = user.postCode;
+  const city = user.city;
+  const phoneNumber = user.phoneNumber;
+  const danceLevel = user.danceLevel;
+  const email = user.email;
+  const image = user.image;
+  const password = user.password;
+  const userId = user.userId;
+
+  // Validation de l'email
+  if (!email || !isEmail(email)) {
+    return res.status(403).json({ message: `Email invalide !` });
+  }
+
+  // Validation du mot de passe
+  if (!password || password.length <= 4) {
+    return res
+      .status(403)
+      .json({ message: `Le mot de passe doit contenir au moins 5 caractères` });
+  }
+
+  // Hachage du mot de passe
+  const hashResult = await hashPass(password);
+  const hashError = hashResult.error;
+  if (hashError) {
+    return res.status(500).json({ message: hashError });
+  }
+  const hashedPassword = hashResult.hashed;
+
+  // Création de l'utilisateur dans la base de données
+  const response = await UserDB.updateUser(
+    address,
+    postCode,
+    city,
+    phoneNumber,
+    danceLevel,
+    email,
+    hashedPassword,
+    image,
+    userId
+  );
+  const responseError = response.error;
+  console.log(response);
+  if (responseError) {
+    return res.status(500).json({ message: responseError });
+  }
+
+  return res.status(200).json({ message: "Utilisateur modifié" });
 };
 
 // Fonction pour lire les informations de tous les utilisateurs
@@ -101,7 +157,7 @@ const readOneUser = async (req, res) => {
     phoneNumber: result[0].phone_number,
     danceLevel: result[0].dance_level,
     email: result[0].email,
-    upLoadedImage: result[0].upLoadedImage,
+    image: result[0].image,
   };
 
   return res.status(200).json({ message: "Requête OK", user });
@@ -139,7 +195,7 @@ const signIn = async (req, res) => {
   const userId = user.user_id;
   const role = user.role;
   const dbPassword = user.password;
-  const upLoadedImage = user.upLoadedImage;
+  const image = user.image;
 
   // Comparaison des mots de passe hachés
   const passAreSame = await compareHash(password, dbPassword);
@@ -151,7 +207,7 @@ const signIn = async (req, res) => {
   const token = jwtSign(userId);
   return res.status(200).json({
     message: `Connexion réussie`,
-    user: { userId, email, token, role, upLoadedImage },
+    user: { userId, email, token, role, image },
   });
 };
 
@@ -210,4 +266,5 @@ export const UserController = {
   signUpWorkshop,
   isRegistered,
   registeredWorkshop,
+  updateUser,
 };
